@@ -47,7 +47,7 @@ public final class BitsetIntVarImpl extends AbstractVariable implements IntVar {
     /**
      * Bitset of available values -- includes offset
      */
-    private final IStateBitSet VALUES;
+    public IStateBitSet VALUES;
     /**
      * Lower bound of the current domain -- includes offset
      */

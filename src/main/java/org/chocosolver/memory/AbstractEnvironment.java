@@ -10,9 +10,7 @@
 package org.chocosolver.memory;
 
 import org.chocosolver.memory.structure.BasicIndexedBipartiteSet;
-import org.chocosolver.memory.structure.OneWordS32BitSet;
-import org.chocosolver.memory.structure.OneWordS64BitSet;
-import org.chocosolver.memory.structure.S64BitSet;
+import org.chocosolver.memory.structure.S64BitSet2;
 
 /**
  * Super class of all environments !
@@ -54,13 +52,14 @@ public abstract class AbstractEnvironment implements IEnvironment {
      */
     @Override
     public IStateBitSet makeBitSet(int size) {
-        if (size < 32) {
-            return new OneWordS32BitSet(this, size);
-        } else if (size < 64) {
-            return new OneWordS64BitSet(this, size);
-        } else {
-            return new S64BitSet(this, size);
-        }
+//        if (size < 32) {
+//            return new OneWordS32BitSet(this, size);
+//        } else if (size < 64) {
+//            return new OneWordS64BitSet(this, size);
+//        } else {
+//            return new S64BitSet(this, size);
+//        }
+        return new S64BitSet2(this, size);
     }
 
 
