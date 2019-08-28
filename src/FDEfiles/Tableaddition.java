@@ -8,43 +8,34 @@ import org.chocosolver.solver.constraints.extension.Tuples;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.delta.IIntDeltaMonitor;
+import org.chocosolver.solver.variables.events.PropagatorEventType;
 import org.chocosolver.solver.variables.impl.BitsetIntVarImpl;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.procedure.UnaryIntProcedure;
 
-import java.util.ArrayList;
-
-public class TableCTNEW extends Propagator<BitsetIntVarImpl> {
-
-    RSparseBitSet currTable;
+public class Tableaddition extends Propagator<BitsetIntVarImpl> {
+    Tableaddition.RSparseBitSet currTable;
     protected Tuples tuples;
     protected long[][][] supports;
     int[][] residues;
     protected int[] offset;
-    private str2_var str2vars[];
-    private ArrayList<str2_var> Ssup;
-    private ArrayList<str2_var> Sval;
     protected IIntDeltaMonitor[] monitors;
     private UnaryIntProcedure<Integer> onValRem;
     private S64BitSet2 s;
+    protected static final long WORD_MASK = 0xffffffffffffffffL;
 
-    public TableCTNEW(BitsetIntVarImpl[] vars, Tuples tuples){
-        super(vars, PropagatorPriority.QUADRATIC, false);
+    public Tableaddition(BitsetIntVarImpl[] vars, Tuples tuples) {
+        super(vars, PropagatorPriority.QUADRATIC, true);
         this.tuples = tuples;
-        this.currTable = new RSparseBitSet(this.model.getEnvironment(), this.tuples.nbTuples());
+        this.currTable = new Tableaddition.RSparseBitSet(this.model.getEnvironment(), this.tuples.nbTuples());
         this.computeSupports(tuples);
-        str2vars = new str2_var[vars.length-1];
-        for (int i = 0; i < vars.length-1; i++) {
-            str2vars[i] = new str2_var(model.getEnvironment(), i);
-        }
-        Ssup = new ArrayList<>();
-        Sval = new ArrayList<>();
-        this.monitors = new IIntDeltaMonitor[vars.length];                //应该是存储删值集合
-        for(int i = 0; i < vars.length; ++i) {
+        this.monitors = new IIntDeltaMonitor[vars.length-1];                //应该是存储删值集合
+        for(int i = 0; i < vars.length-1; ++i) {
             this.monitors[i] = vars[i].monitorDelta(this);
         }
         this.onValRem = this.makeProcedure();
     }
+
     protected UnaryIntProcedure<Integer> makeProcedure() {
         return new UnaryIntProcedure<Integer>() {
             int var, off;
@@ -62,11 +53,12 @@ public class TableCTNEW extends Propagator<BitsetIntVarImpl> {
             }
         };
     }
+
     protected void computeSupports(Tuples tuples) {         //初始化support
-        int n = vars.length-1;         //不要最后一个变量
-        offset = new int[n+1];
-        supports = new long[n][][];
-        residues = new int[n][];
+        int n = ((IntVar[])this.vars).length-1;         //不要最后一个变量
+        this.offset = new int[n+1];
+        this.supports = new long[n][][];
+        this.residues = new int[n][];
         long[] tmp;
         for (int i = 0; i < n; i++) {
             int lb = vars[i].getLB();
@@ -96,90 +88,59 @@ public class TableCTNEW extends Propagator<BitsetIntVarImpl> {
             }
         }
     }
-    @Override
+
     public void propagate(int evtmask) throws ContradictionException {
-        Ssup.clear();
-        Sval.clear();
         s=(S64BitSet2)this.vars[vars.length-1].VALUES;
         currTable.setWords(s.getWords());
-        for (str2_var tmp : str2vars) {
-            Ssup.add(tmp);
-            if (tmp.last_size.get() != vars[tmp.var].getDomainSize()) {
-                Sval.add(tmp);
-                tmp.last_size.set(vars[tmp.var].getDomainSize());
+        if (PropagatorEventType.isFullPropagation(evtmask)) {
+            for (int i = 0; i < vars.length-1; i++) {
+                currTable.clearMask();
+                int ub = vars[i].getUB();
+                for (int v = vars[i].getLB(); v <= ub; v = vars[i].nextValue(v)) {
+                    currTable.addToMask(supports[i][v - offset[i]]);
+                }
+                currTable.intersectWithMask();
             }
         }
+        filterDomains();
+        s.setWords(currTable.getWords());
+        lastBoundFilter(vars.length-1);
+        for(int i = 0; i < ((IntVar[])this.vars).length-1; ++i) {
+            monitors[i].unfreeze();
+        };
+    }
 
-        for(str2_var tmp : Sval){
+    public void propagate(int vIdx, int mask) throws ContradictionException {
+        if(vIdx==this.vars.length-1){
+
+            s=(S64BitSet2)this.vars[vars.length-1].VALUES;
+            currTable.setWords(s.getWords());
+            forcePropagate(PropagatorEventType.CUSTOM_PROPAGATION);
+
+        }else{
+            s=(S64BitSet2)this.vars[vars.length-1].VALUES;
+            currTable.setWords(s.getWords());
             currTable.clearMask();
-            monitors[tmp.var].freeze();
-            if (vars[tmp.var].getDomainSize() > monitors[tmp.var].sizeApproximation()) {
-                monitors[tmp.var].forEachRemVal(onValRem.set(tmp.var));
+            monitors[vIdx].freeze();
+            if (vars[vIdx].getDomainSize() > monitors[vIdx].sizeApproximation()) {
+                monitors[vIdx].forEachRemVal(onValRem.set(vIdx));
                 currTable.reverseMask();
             } else {
-                int ub = vars[tmp.var].getUB();
-//                System.out.println(ub+"  "+vars[tmp.var].getLB());
-                for (int v = vars[tmp.var].getLB(); v <= ub; v=vars[tmp.var].nextValue(v)) {
-                    currTable.addToMask(supports[tmp.var][v - offset[tmp.var]]);
+                int ub = vars[vIdx].getUB();
+                for (int v = vars[vIdx].getLB(); v <= ub; v = vars[vIdx].nextValue(v)) {
+                    currTable.addToMask(supports[vIdx][v - offset[vIdx]]);
                 }
             }
             currTable.intersectWithMask();
-            monitors[tmp.var].unfreeze();
+            monitors[vIdx].unfreeze();
             if (currTable.isEmpty()) { // fail as soon as possible
                 fails();
             }
+            s.setWords(currTable.getWords());
+            lastBoundFilter(vars.length-1);
+            forcePropagate(PropagatorEventType.CUSTOM_PROPAGATION);
         }
-        if (currTable.isEmpty()) { // fail as soon as possible
-            fails();
-        }
-        filterDomains();
-        removevalues(vars.length-1);          //效率会低一些
-//        s.setWords(currTable.getWords());
-//        lastBoundFilter(vars.length-1);
-        for(int i = 0; i < this.vars.length; ++i) {
-            monitors[i].unfreeze();
-        }
-    }
 
-    @Override
-    public ESat isEntailed() {
-        return tuples.check(vars);
-    }
-    private void removevalues(int i) throws ContradictionException {
-        s=(S64BitSet2)vars[i].VALUES;
-        IStateLong[] words=s.getWords();
-        IStateLong[] currWords=currTable.getWords();
-        for(int j=0;j<words.length;j++){
-            long w1=words[j].get();
-            long w2=currWords[j].get();
-            if(w1!=w2){
-                for(int k=63;k>=0;k--){
-                    long mask=1L<<k;
-                    if((w1&mask)!=(w2&mask)){
-                        w1=w1&~mask;
-                        vars[i].removeValue(j*64+63-k+offset[i],this);
-                    }
-                    if(w1==w2)
-                        break;;
-                }
-            }
-        }
-    }
-    private void lastBoundFilter(int i) throws ContradictionException {
-        s=(S64BitSet2)vars[i].VALUES;
-        int lb = vars[i].getLB();
-        int ub = vars[i].getUB();
-//        System.out.println(vars[i].getId()+" "+lb+"  "+ub+"  "+vars[i].getDomainSize());
-        if (!s.get(lb)){
-//            System.out.print(lb);
-            lb=s.nextSetBit(lb-offset[i]);
-//            System.out.println("   "+lb+"   "+vars[i].getUB());
-            vars[i].updateLowerBound(lb+offset[i],this);
-        }
-        if(!s.get(ub)){
-            ub=s.prevSetBit(ub-offset[i]);
-            vars[i].updateUpperBound(ub+offset[i],this);
-        }
     }
 
     private void filterDomains() throws ContradictionException {
@@ -193,6 +154,20 @@ public class TableCTNEW extends Propagator<BitsetIntVarImpl> {
                 this.boundFilter(i);
             }
         }
+
+    }
+    private void lastBoundFilter(int i) throws ContradictionException {
+        s=(S64BitSet2)vars[i].VALUES;
+        int lb = vars[i].getLB();
+        int ub = vars[i].getUB();
+//        System.out.println(vars[i].getId()+" "+lb+"  "+ub+"  "+vars[i].getDomainSize());
+        if (!s.get(lb)){
+            lb=s.nextSetBit(lb);
+        }
+        if(!s.get(ub)){
+            ub=s.prevSetBit(ub);
+        }
+        vars[i].updateBounds(lb+offset[i],ub+offset[i], this);
     }
 
     private void boundFilter(int i) throws ContradictionException {
@@ -245,6 +220,11 @@ public class TableCTNEW extends Propagator<BitsetIntVarImpl> {
             }
         }
 
+    }
+
+    public ESat isEntailed() {
+        // TODO optim : check current according to currTable?
+        return tuples.check(vars);
     }
 
     protected class RSparseBitSet {
@@ -341,23 +321,4 @@ public class TableCTNEW extends Propagator<BitsetIntVarImpl> {
             }
         }
     }
-
-    private class str2_var {
-
-        private int var;
-        /**
-         * original var
-         */
-        private IStateInt last_size;
-        /**
-         * Numerical reversible of the last size
-         */
-
-        private str2_var(IEnvironment env, int var_) {
-            var = var_;
-            last_size = env.makeInt(0);
-        }
-    }
-
-
 }

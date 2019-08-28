@@ -6,6 +6,7 @@ import org.chocosolver.solver.Model
 import org.chocosolver.solver.constraints.Propagator
 import org.chocosolver.solver.constraints.extension.Tuples
 import org.chocosolver.solver.constraints.extension.nary.PropTableStr2
+import org.chocosolver.solver.search.strategy.Search.activityBasedSearch
 import org.chocosolver.solver.variables.IntVar
 import org.chocosolver.solver.variables.impl.BitsetIntVarImpl
 
@@ -93,6 +94,7 @@ object testFDE {
         }
         val solver2 = m2.getSolver
         solver2.limitTime(1800000)
+//        solver2.setSearch(activityBasedSearch(intvar2:_*))
         solver2.solve
         dataLine += "CT"
         dataLine += solver2.getMeasures.getNodeCount.toString
@@ -130,6 +132,7 @@ object testFDE {
         }
         val solver1 = m1.getSolver
         solver1.limitTime(1800000)
+//        solver1.setSearch(activityBasedSearch(intvar1:_*))
         solver1.solve
         dataLine += "STR2+FDE"
         dataLine += solver1.getMeasures.getNodeCount.toString
@@ -159,7 +162,7 @@ object testFDE {
             scope(j) = intvar(scp(j))
             j+=1
           }
-          val p = new TableSTROLD(scope, tuple(i))
+          val p = new TableFDEOri(scope, tuple(i))
           //            Object p=new CT(scope,tuple[i]);
           //            Object p=new PropTableStr2(scope,tuple[i]);
           val pro=Array[Propagator[BitsetIntVarImpl]](p);
@@ -176,7 +179,7 @@ object testFDE {
             scope(j) = intvar(scp(j))
             j+=1
           }
-          val p = new TableCTNEW(scope, tuple(i))
+          val p = new TableFDEAdd(scope, tuple(i))
           val pro=Array[Propagator[BitsetIntVarImpl]](p);
           val c = new org.chocosolver.solver.constraints.Constraint("TABLE", pro:_*)
           m.post(c)
@@ -184,6 +187,7 @@ object testFDE {
         }
         val solver = m.getSolver
         solver.limitTime(1800000)
+//        solver.setSearch(activityBasedSearch(intvar:_*))
         solver.solve
         dataLine += "FDEbit+FDE"
         dataLine += solver.getMeasures.getNodeCount.toString

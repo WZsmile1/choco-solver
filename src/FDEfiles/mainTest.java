@@ -3,7 +3,7 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.extension.Tuples;
-import org.chocosolver.solver.constraints.extension.nary.PropTableStr2;
+import org.chocosolver.solver.search.strategy.selectors.variables.ImpactBased;
 import org.chocosolver.solver.variables.impl.BitsetIntVarImpl;
 
 public class mainTest {
@@ -29,8 +29,8 @@ public class mainTest {
 //        for(int i=1;i<12;i++){
 //            solve(path[i],fmt);
 //        }
-        solve(path[12],fmt);
-        solve2(path[12],fmt);
+        solve(path[0],fmt);
+        solve2(path[0],fmt);
 
     }
 
@@ -54,7 +54,7 @@ public class mainTest {
             for(int j=0;j<scp.length;j++){
                 scope[j]=intvar[scp[j]];
             }
-            Object p=new TableSTROLD(scope,tuple[i]);
+            Object p=new TableFDEOri(scope,tuple[i]);
 //            Object p=new CT(scope,tuple[i]);
 //            Object p=new PropTableStr2(scope,tuple[i]);
             Constraint c=new Constraint("TABLE", new Propagator[]{(Propagator)p});
@@ -66,7 +66,7 @@ public class mainTest {
             for(int j=0;j<scp.length;j++){
                 scope[j]=intvar[scp[j]];
             }
-            Object p=new TableCTNEW(scope,tuple[i]);
+            Object p=new TableFDEAdd(scope,tuple[i]);
 //            Object p=new PropTableStr2(scope,tuple[i]);
 //            Object p=new CT(scope,tuple[i]);
             Constraint c=new Constraint("TABLE", new Propagator[]{(Propagator)p});
@@ -75,6 +75,7 @@ public class mainTest {
 
         Solver solver=m.getSolver();
         solver.limitTime(1800000);
+        solver.setSearch(new ImpactBased(intvar,false));
         solver.solve();
         System.out.println(solver.getSearch());
         System.out.println(solver.getMeasures());
@@ -99,9 +100,9 @@ public class mainTest {
             for(int j=0;j<scp.length;j++){
                 scope[j]=intvar[scp[j]];
             }
-//            Object p=new TableSTROLD(scope,tuple[i]);
+            Object p=new TableFDEOri(scope,tuple[i]);
 //            Object p=new CT(scope,tuple[i]);
-            Object p=new PropTableStr2(scope,tuple[i]);
+//            Object p=new PropTableStr2(scope,tuple[i]);
             Constraint c=new Constraint("TABLE", new Propagator[]{(Propagator)p});
             m.post(c);
         }
@@ -111,8 +112,8 @@ public class mainTest {
             for(int j=0;j<scp.length;j++){
                 scope[j]=intvar[scp[j]];
             }
-//            Object p=new TableCTNEW(scope,tuple[i]);
-            Object p=new PropTableStr2(scope,tuple[i]);
+            Object p=new TableFDEAdd(scope,tuple[i]);
+//            Object p=new PropTableStr2(scope,tuple[i]);
 //            Object p=new CT(scope,tuple[i]);
             Constraint c=new Constraint("TABLE", new Propagator[]{(Propagator)p});
             m.post(c);
@@ -120,6 +121,7 @@ public class mainTest {
 
         Solver solver=m.getSolver();
         solver.limitTime(1800000);
+        solver.setSearch(new ImpactBased(intvar,false));
         solver.solve();
         System.out.println(solver.getSearch());
         System.out.println(solver.getMeasures());
