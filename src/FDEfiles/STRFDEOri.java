@@ -10,7 +10,7 @@ import org.chocosolver.util.procedure.UnaryIntProcedure;
 
 import java.util.ArrayList;
 
-public class TableFDEOri extends Propagator<BitsetIntVarImpl> {
+public class STRFDEOri extends Propagator<BitsetIntVarImpl> {
 
     private ArrayList<BitSupport>[][] tempBitTable;
     private IStateLong[] bitVal;
@@ -20,7 +20,7 @@ public class TableFDEOri extends Propagator<BitsetIntVarImpl> {
     protected IIntDeltaMonitor[] monitors;
     private UnaryIntProcedure<Integer> onValRem;
 
-    public TableFDEOri(BitsetIntVarImpl[] vars, Tuples tuples){
+    public STRFDEOri(BitsetIntVarImpl[] vars, Tuples tuples){
         super(vars, PropagatorPriority.QUADRATIC, false);
         this.tuples = tuples;
         this.computeSupports(tuples);

@@ -162,7 +162,7 @@ object testFDE {
             scope(j) = intvar(scp(j))
             j+=1
           }
-          val p = new TableFDEOri(scope, tuple(i))
+          val p = new STRFDEOri(scope, tuple(i))
           //            Object p=new CT(scope,tuple[i]);
           //            Object p=new PropTableStr2(scope,tuple[i]);
           val pro=Array[Propagator[BitsetIntVarImpl]](p);
@@ -179,7 +179,7 @@ object testFDE {
             scope(j) = intvar(scp(j))
             j+=1
           }
-          val p = new TableFDEAdd(scope, tuple(i))
+          val p = new STRFDEAdd(scope, tuple(i))
           val pro=Array[Propagator[BitsetIntVarImpl]](p);
           val c = new org.chocosolver.solver.constraints.Constraint("TABLE", pro:_*)
           m.post(c)

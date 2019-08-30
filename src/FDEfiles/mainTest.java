@@ -54,7 +54,7 @@ public class mainTest {
             for(int j=0;j<scp.length;j++){
                 scope[j]=intvar[scp[j]];
             }
-            Object p=new TableFDEOri(scope,tuple[i]);
+            Object p=new STRFDEOri(scope,tuple[i]);
 //            Object p=new CT(scope,tuple[i]);
 //            Object p=new PropTableStr2(scope,tuple[i]);
             Constraint c=new Constraint("TABLE", new Propagator[]{(Propagator)p});
@@ -66,7 +66,7 @@ public class mainTest {
             for(int j=0;j<scp.length;j++){
                 scope[j]=intvar[scp[j]];
             }
-            Object p=new TableFDEAdd(scope,tuple[i]);
+            Object p=new STRFDEAdd(scope,tuple[i]);
 //            Object p=new PropTableStr2(scope,tuple[i]);
 //            Object p=new CT(scope,tuple[i]);
             Constraint c=new Constraint("TABLE", new Propagator[]{(Propagator)p});
@@ -100,7 +100,7 @@ public class mainTest {
             for(int j=0;j<scp.length;j++){
                 scope[j]=intvar[scp[j]];
             }
-            Object p=new TableFDEOri(scope,tuple[i]);
+            Object p=new STRFDEOri(scope,tuple[i]);
 //            Object p=new CT(scope,tuple[i]);
 //            Object p=new PropTableStr2(scope,tuple[i]);
             Constraint c=new Constraint("TABLE", new Propagator[]{(Propagator)p});
@@ -112,7 +112,7 @@ public class mainTest {
             for(int j=0;j<scp.length;j++){
                 scope[j]=intvar[scp[j]];
             }
-            Object p=new TableFDEAdd(scope,tuple[i]);
+            Object p=new STRFDEAdd(scope,tuple[i]);
 //            Object p=new PropTableStr2(scope,tuple[i]);
 //            Object p=new CT(scope,tuple[i]);
             Constraint c=new Constraint("TABLE", new Propagator[]{(Propagator)p});

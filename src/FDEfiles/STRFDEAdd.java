@@ -14,7 +14,7 @@ import org.chocosolver.util.procedure.UnaryIntProcedure;
 
 import java.util.ArrayList;
 
-public class TableFDEAdd extends Propagator<BitsetIntVarImpl> {
+public class STRFDEAdd extends Propagator<BitsetIntVarImpl> {
 
     RSparseBitSet currTable;
     protected Tuples tuples;
@@ -28,7 +28,7 @@ public class TableFDEAdd extends Propagator<BitsetIntVarImpl> {
     private UnaryIntProcedure<Integer> onValRem;
     private S64BitSet2 s;
 
-    public TableFDEAdd(BitsetIntVarImpl[] vars, Tuples tuples){
+    public STRFDEAdd(BitsetIntVarImpl[] vars, Tuples tuples){
         super(vars, PropagatorPriority.QUADRATIC, false);
         this.tuples = tuples;
         this.currTable = new RSparseBitSet(this.model.getEnvironment(), this.tuples.nbTuples());
