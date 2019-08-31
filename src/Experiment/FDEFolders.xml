@@ -5,7 +5,7 @@
     <!--<folder format="2">rand-3-20-20</folder>-->
     <!--<folder format="2">rand-3-20-20-fcd</folder>-->
     <!--<folder format="2">rand-8-20-5</folder>-->
-    <!--<folder format="2">rand-10-60-20</folder>-->
+    <folder format="2">rand-10-60-20</folder>
     <!--<folder format="2">rand-5-12-12</folder>-->
     <!--<folder format="2">rand-3-24-24</folder>-->
     <!--<folder format="2">rand-3-24-24-fcd</folder>-->
@@ -13,10 +13,10 @@
     <!--<folder format="2">travellingSalesman-25</folder>-->
     <!--<folder format="2">travellingSalesman-20</folder>-->
     <!--<folder format="2">aim-50</folder>-->
-    <folder format="2">aim-100</folder>
+    <!--<folder format="2">aim-100</folder>-->
     <!--<folder format="2">dubois</folder>-->
     <!--<folder format="2">renault</folder>-->
-    <folder format="2">aim-200</folder>
+    <!--<folder format="2">aim-200</folder>-->
     <!--<folder format="2">golombRulerArity3</folder>-->
     <!--<folder format="2">jnhSat</folder>-->
     <!--<folder format="2">jnhUnsat</folder>-->

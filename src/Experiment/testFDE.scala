@@ -5,7 +5,7 @@ import com.github.tototoshi.csv.CSVWriter
 import org.chocosolver.solver.Model
 import org.chocosolver.solver.constraints.Propagator
 import org.chocosolver.solver.constraints.extension.Tuples
-import org.chocosolver.solver.constraints.extension.nary.PropTableStr2
+import org.chocosolver.solver.constraints.extension.nary.{PropCompactTable, PropTableStr2}
 import org.chocosolver.solver.search.strategy.Search.activityBasedSearch
 import org.chocosolver.solver.variables.IntVar
 import org.chocosolver.solver.variables.impl.BitsetIntVarImpl
@@ -63,7 +63,7 @@ object testFDE {
         val fdem = new FDEModel(f.getPath, fmt)
         dataLine.clear()
         dataLine += f.getName()
-        //-------------CT串行算法-------------
+        //-------------CT算法-------------
         val m2 = new org.chocosolver.solver.Model()
         val intvar2 = new Array[BitsetIntVarImpl](xm.num_vars)
         val tuple2 = new Array[Tuples](xm.num_tabs)
@@ -86,7 +86,7 @@ object testFDE {
             scope(j) = intvar2(scp(j))
             j+=1
           }
-          val p=new PropTableStr2(scope,tuple2(i));
+          val p=new PropCompactTable(scope,tuple2(i));
           val pro=Array[Propagator[IntVar]](p);
           val c = new org.chocosolver.solver.constraints.Constraint("TABLE", pro:_*)
           m2.post(c)
@@ -101,7 +101,7 @@ object testFDE {
         dataLine += solver2.getMeasures.getTimeCount.toString
 
 
-        //-------------CT串行算法-------------
+        //-------------STR2算法-------------
         val m1 = new org.chocosolver.solver.Model()
         val intvar1 = new Array[BitsetIntVarImpl](fdem.num_vars)
         val tuple1 = new Array[Tuples](fdem.num_tabs)
@@ -139,7 +139,7 @@ object testFDE {
         dataLine += solver1.getMeasures.getTimeCount.toString
 
 
-        //-------------CT串行算法-------------
+        //-------------STRFDE算法-------------
         val m = new org.chocosolver.solver.Model()
         val intvar = new Array[BitsetIntVarImpl](fdem.num_vars)
         val tuple = new Array[Tuples](fdem.num_tabs)
@@ -163,8 +163,6 @@ object testFDE {
             j+=1
           }
           val p = new STRFDEOri(scope, tuple(i))
-          //            Object p=new CT(scope,tuple[i]);
-          //            Object p=new PropTableStr2(scope,tuple[i]);
           val pro=Array[Propagator[BitsetIntVarImpl]](p);
           val c = new org.chocosolver.solver.constraints.Constraint("TABLE", pro:_*)
           m.post(c)
